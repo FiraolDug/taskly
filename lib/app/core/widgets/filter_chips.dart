@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/app/core/constants/enums/task_filter.dart';
+import '../constants/enums/task_filter.dart';
 import '../utils/extension/task_filter.dart';
 
 class TaskFilterChips extends StatelessWidget {

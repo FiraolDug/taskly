@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class TasklyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showMenu;
   final void Function(String) onSelected;
+  final VoidCallback? onAdd;
 
   const TasklyAppBar({
     super.key,
     required this.showMenu,
     required this.onSelected,
+    this.onAdd,
   });
 
   @override
@@ -44,7 +46,7 @@ class TasklyAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: IconButton(
             tooltip: 'Add task',
             icon: const Icon(Icons.add_rounded),
-            onPressed: () {},
+            onPressed: onAdd,
           ),
         ),
         if (showMenu)
@@ -83,5 +85,5 @@ class TasklyAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(72);
 }

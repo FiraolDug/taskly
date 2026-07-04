@@ -50,7 +50,7 @@ class TaskCard extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         ),
         title: Text(
-          task.text,
+          task.taskName,
           style: TextStyle(
             decoration: task.done ? TextDecoration.lineThrough : null,
             color: task.done

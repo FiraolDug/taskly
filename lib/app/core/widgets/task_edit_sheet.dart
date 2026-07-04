@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/app.dart';
-import 'package:myapp/app/core/constants/enums/task_priority.dart';
-import 'package:myapp/app/modal/task_model.dart';
+import '../constants/enums/task_priority.dart';
+import '../../modal/task_model.dart';
 import '../utils/extension/task_priority.dart';
 
 class TaskEditSheet extends StatefulWidget {
-  final Task task;
+  final Task? task;
+  final bool isEditing;
   final Function(Task) onSave;
 
   const TaskEditSheet({
     super.key,
-    required this.task,
+    this.task,
+    this.isEditing = true,
     required this.onSave,
   });
 
@@ -19,28 +20,33 @@ class TaskEditSheet extends StatefulWidget {
 }
 
 class _TaskEditSheetState extends State<TaskEditSheet> {
-  late TextEditingController _textController;
+  late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
   late TaskPriority _priority;
   DateTime? _dueDate;
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController(text: widget.task.text);
-    _priority = widget.task.priority;
-    _dueDate = widget.task.dueDate;
+    _titleController = TextEditingController(text: widget.task?.taskName ?? '');
+    _descriptionController = TextEditingController(
+      text: widget.task?.description ?? '',
+    );
+    _priority = widget.task?.priority ?? TaskPriority.medium;
+    _dueDate = widget.task?.dueDate;
   }
 
   @override
   void dispose() {
-    _textController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -68,7 +74,7 @@ class _TaskEditSheetState extends State<TaskEditSheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Edit Task',
+            widget.isEditing ? 'Edit Task' : 'Add Task',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -77,11 +83,22 @@ class _TaskEditSheetState extends State<TaskEditSheet> {
           ),
           const SizedBox(height: 16),
           TextField(
-            controller: _textController,
+            controller: _titleController,
+            decoration: const InputDecoration(
+              labelText: 'Task title',
+              border: OutlineInputBorder(),
+            ),
+            textInputAction: TextInputAction.next,
+            maxLines: 1,
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _descriptionController,
             decoration: const InputDecoration(
               labelText: 'Task description',
               border: OutlineInputBorder(),
             ),
+            textInputAction: TextInputAction.done,
             maxLines: 3,
           ),
           const SizedBox(height: 16),
@@ -152,11 +169,7 @@ class _TaskEditSheetState extends State<TaskEditSheet> {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.schedule,
-                    color: colorScheme.primary,
-                    size: 20,
-                  ),
+                  Icon(Icons.schedule, color: colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'Due: ${_formatDate(_dueDate!)}',
@@ -192,19 +205,37 @@ class _TaskEditSheetState extends State<TaskEditSheet> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    final updatedTask = Task(
-                      id: widget.task.id,
-                      text: _textController.text.trim(),
-                      done: widget.task.done,
-                      createdAt: widget.task.createdAt,
-                      completedAt: widget.task.completedAt,
-                      priority: _priority,
-                      dueDate: _dueDate,
-                    );
-                    widget.onSave(updatedTask);
+                    final title = _titleController.text.trim();
+                    final description = _descriptionController.text.trim();
+                    if (title.isEmpty) {
+                      Navigator.of(context).pop();
+                      return;
+                    }
+
+                    final taskToSave = widget.isEditing && widget.task != null
+                        ? Task(
+                            id: widget.task!.id,
+                            taskName: title,
+                            description: description,
+                            done: widget.task!.done,
+                            createdAt: widget.task!.createdAt,
+                            completedAt: widget.task!.completedAt,
+                            priority: _priority,
+                            dueDate: _dueDate,
+                          )
+                        : Task(
+                            taskName: title,
+                            description: description,
+                            done: false,
+                            createdAt: DateTime.now(),
+                            priority: _priority,
+                            dueDate: _dueDate,
+                          );
+
+                    widget.onSave(taskToSave);
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Save'),
+                  child: Text(widget.isEditing ? 'Save' : 'Add Task'),
                 ),
               ),
             ],

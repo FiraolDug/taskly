@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/app/core/widgets/empty_state.dart';
-import 'package:myapp/app/core/widgets/task_card.dart';
-import 'package:myapp/app/modal/task_model.dart';
+import './empty_state.dart';
+import './task_card.dart';
+import '../../modal/task_model.dart';
 
 class TaskList extends StatelessWidget {
   final List<Task> filteredTasks;

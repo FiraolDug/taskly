@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/app/core/widgets/todo_home_page.dart';
-import 'app/core/constants/enums/task_filter.dart';
-import 'app/core/constants/enums/task_priority.dart';
+import './app/core/widgets/todo_home_page.dart';
 import './app/core/constants/strings/constant_text.dart';
 import './app/core/theme/theme.dart';
 class TodoApp extends StatelessWidget {

@@ -356,49 +356,6 @@ class _TodoHomePageState extends State<TodoHomePage>
               },
             ),
           const SizedBox(height: 16),
-          TaskInputRow(
-            controller: _taskController,
-            onAdd: _addTask,
-            onSubmitted: (_) => _addTask(),
-          ),
-
-          const SizedBox(height: 16),
-          Card(
-            elevation: 5,
-            child: Container(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(labelText: "Task Title"),
-                  ),
-                  TextField(
-                    decoration: InputDecoration(labelText: "Task Description"),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        "Cancel",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "Save",
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Task List
           Expanded(
             child: TaskList(
               filteredTasks: _filteredTasks,
