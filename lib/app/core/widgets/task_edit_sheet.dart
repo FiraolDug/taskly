@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/app.dart';
 import 'package:myapp/app/core/constants/enums/task_priority.dart';
 import 'package:myapp/app/modal/task_model.dart';
+import '../utils/extension/task_priority.dart';
 
 class TaskEditSheet extends StatefulWidget {
   final Task task;
