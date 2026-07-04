@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:myapp/app/core/constants/enums/task_filter.dart';
-import 'package:myapp/app/core/constants/enums/task_priority.dart';
-import 'package:myapp/app/core/widgets/app_bar.dart';
-import 'package:myapp/app/core/widgets/filter_chips.dart';
-import 'package:myapp/app/core/widgets/search_bar.dart';
-import 'package:myapp/app/core/widgets/task_input_row.dart';
-import 'package:myapp/app/core/widgets/task_list.dart';
-import 'package:myapp/app/core/widgets/task_stats_card.dart';
-import 'package:myapp/app/core/widgets/task_edit_sheet.dart';
-import 'package:myapp/app/modal/task_model.dart';
+import '../constants/enums/task_filter.dart';
+import '../constants/enums/task_priority.dart';
+import './app_bar.dart';
+import './filter_chips.dart';
+import './search_bar.dart';
+import './task_input_row.dart';
+import './task_list.dart';
+import './task_stats_card.dart';
+import './task_edit_sheet.dart';
+import '../../modal/task_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TodoHomePage extends StatefulWidget {
@@ -89,7 +89,9 @@ class _TodoHomePageState extends State<TodoHomePage>
       _filteredTasks = _tasks.where((task) {
         // Apply search filter
         if (_searchQuery.isNotEmpty) {
-          if (!task.text.toLowerCase().contains(_searchQuery.toLowerCase())) {
+          if (!task.taskName.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          )) {
             return false;
           }
         }
@@ -118,7 +120,8 @@ class _TodoHomePageState extends State<TodoHomePage>
       _tasks.insert(
         0,
         Task(
-          text: text,
+          taskName: text,
+          description: "some description",
           done: false,
           createdAt: DateTime.now(),
           priority: TaskPriority.medium,
@@ -159,7 +162,7 @@ class _TodoHomePageState extends State<TodoHomePage>
       });
       _saveTasks();
       _showSnackBar(
-        'Deleted "${_recentlyDeletedTask!.text}"',
+        'Deleted "${_recentlyDeletedTask!.taskName}"',
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () {
@@ -180,29 +183,41 @@ class _TodoHomePageState extends State<TodoHomePage>
     }
   }
 
-  void _editTask(int index) {
-    final task = _filteredTasks[index];
-    _taskController.text = task.text;
-
+  void _showTaskSheet({Task? task}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => TaskEditSheet(
         task: task,
-        onSave: (updatedTask) {
-          final taskIndex = _tasks.indexWhere((t) => t.id == task.id);
-          if (taskIndex != -1) {
+        isEditing: task != null,
+        onSave: (savedTask) {
+          if (task == null) {
             setState(() {
-              _tasks[taskIndex] = updatedTask;
+              _tasks.insert(0, savedTask);
               _applyFilters();
             });
             _saveTasks();
-            _showSnackBar('Task updated successfully!');
+            _showSnackBar('Task added successfully!');
+          } else {
+            final taskIndex = _tasks.indexWhere((t) => t.id == task.id);
+            if (taskIndex != -1) {
+              setState(() {
+                _tasks[taskIndex] = savedTask;
+                _applyFilters();
+              });
+              _saveTasks();
+              _showSnackBar('Task updated successfully!');
+            }
           }
         },
       ),
     );
+  }
+
+  void _editTask(int index) {
+    final task = _filteredTasks[index];
+    _showTaskSheet(task: task);
   }
 
   void _deleteAllCompleted() {
@@ -287,6 +302,7 @@ class _TodoHomePageState extends State<TodoHomePage>
       backgroundColor: colorScheme.surface,
       appBar: TasklyAppBar(
         showMenu: _tasks.isNotEmpty,
+        onAdd: () => _showTaskSheet(),
         onSelected: (value) {
           switch (value) {
             case 'delete_completed':
@@ -299,13 +315,7 @@ class _TodoHomePageState extends State<TodoHomePage>
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_taskController.text.trim().isEmpty) {
-            _showSnackBar('Task cannot be empty!', isError: true);
-            return;
-          }
-          _addTask();
-        },
+        onPressed: () => _showTaskSheet(),
         child: const Icon(Icons.add),
       ),
       body: Column(
@@ -353,7 +363,41 @@ class _TodoHomePageState extends State<TodoHomePage>
           ),
 
           const SizedBox(height: 16),
-
+          Card(
+            elevation: 5,
+            child: Container(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(labelText: "Task Title"),
+                  ),
+                  TextField(
+                    decoration: InputDecoration(labelText: "Task Description"),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "Save",
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
           // Task List
           Expanded(
             child: TaskList(
