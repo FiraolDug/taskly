@@ -49,41 +49,41 @@ class TasklyAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: onAdd,
           ),
         ),
-        if (showMenu)
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: PopupMenuButton<String>(
-              tooltip: 'More options',
-              icon: const Icon(Icons.more_vert_rounded),
-              onSelected: onSelected,
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'mark_all_done',
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle_outline_rounded),
-                      SizedBox(width: 8),
-                      Text('Mark all as done'),
-                    ],
-                  ),
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: PopupMenuButton<String>(
+            tooltip: 'More options',
+            enabled: showMenu,
+            icon: const Icon(Icons.more_vert_rounded),
+            onSelected: onSelected,
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'mark_all_done',
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle_outline_rounded),
+                    SizedBox(width: 8),
+                    Text('Mark all as done'),
+                  ],
                 ),
-                const PopupMenuItem(
-                  value: 'delete_completed',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete_sweep_rounded),
-                      SizedBox(width: 8),
-                      Text('Delete completed'),
-                    ],
-                  ),
+              ),
+              const PopupMenuItem(
+                value: 'delete_completed',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_sweep_rounded),
+                    SizedBox(width: 8),
+                    Text('Delete completed'),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
       ],
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(72);
+  Size get preferredSize => const Size.fromHeight(65);
 }
