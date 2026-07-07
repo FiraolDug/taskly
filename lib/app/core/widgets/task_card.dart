@@ -10,6 +10,7 @@ class TaskCard extends StatelessWidget {
   final VoidCallback onEdit;
 
   const TaskCard({
+    super.key,
     required this.task,
     required this.onToggle,
     required this.onDelete,
@@ -19,10 +20,23 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final isOverdue =
         task.dueDate != null &&
         task.dueDate!.isBefore(DateTime.now()) &&
         !task.done;
+
+    final priorityColor = switch (task.priority) {
+      TaskPriority.high => colorScheme.error,
+      TaskPriority.medium => colorScheme.tertiary,
+      TaskPriority.low => colorScheme.primary,
+    };
+
+    final priorityLabel = switch (task.priority) {
+      TaskPriority.high => 'High',
+      TaskPriority.medium => 'Medium',
+      TaskPriority.low => 'Low',
+    };
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -31,7 +45,7 @@ class TaskCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isOverdue
-              ? Colors.red.withOpacity(0.3)
+              ? colorScheme.error.withOpacity(0.3)
               : colorScheme.outline.withOpacity(0.2),
         ),
         boxShadow: [
@@ -43,7 +57,7 @@ class TaskCard extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         leading: Checkbox(
           value: task.done,
           onChanged: (_) => onToggle(),
@@ -51,13 +65,23 @@ class TaskCard extends StatelessWidget {
         ),
         title: Text(
           task.taskName,
-          style: TextStyle(
-            decoration: task.done ? TextDecoration.lineThrough : null,
-            color: task.done
-                ? colorScheme.onSurfaceVariant
-                : colorScheme.onSurface,
-            fontWeight: task.done ? FontWeight.normal : FontWeight.w500,
-          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style:
+              textTheme.bodyMedium?.copyWith(
+                decoration: task.done ? TextDecoration.lineThrough : null,
+                color: task.done
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.onSurface,
+                fontWeight: task.done ? FontWeight.normal : FontWeight.w500,
+              ) ??
+              TextStyle(
+                decoration: task.done ? TextDecoration.lineThrough : null,
+                color: task.done
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.onSurface,
+                fontWeight: task.done ? FontWeight.normal : FontWeight.w500,
+              ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,24 +94,29 @@ class TaskCard extends StatelessWidget {
                     Icons.schedule,
                     size: 14,
                     color: isOverdue
-                        ? Colors.red
+                        ? colorScheme.error
                         : colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     formatDate(task.dueDate!),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isOverdue
-                          ? Colors.red
-                          : colorScheme.onSurfaceVariant,
-                    ),
+                    style:
+                        textTheme.bodySmall?.copyWith(
+                          color: isOverdue
+                              ? colorScheme.error
+                              : colorScheme.onSurfaceVariant,
+                        ) ??
+                        TextStyle(
+                          color: isOverdue
+                              ? colorScheme.error
+                              : colorScheme.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),
             ],
             if (task.priority != TaskPriority.medium) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Icon(
@@ -95,19 +124,29 @@ class TaskCard extends StatelessWidget {
                         ? Icons.priority_high
                         : Icons.low_priority,
                     size: 14,
-                    color: task.priority == TaskPriority.high
-                        ? Colors.red
-                        : Colors.green,
+                    color: priorityColor,
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    // task.priority.displayName,
-                    "Task Priority Name",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: task.priority == TaskPriority.high
-                          ? Colors.red
-                          : Colors.green,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: priorityColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      priorityLabel,
+                      style:
+                          textTheme.labelSmall?.copyWith(
+                            color: priorityColor,
+                            fontWeight: FontWeight.w600,
+                          ) ??
+                          TextStyle(
+                            color: priorityColor,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ),
                 ],
@@ -126,12 +165,11 @@ class TaskCard extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: onDelete,
-              color: Colors.red,
+              color: colorScheme.error,
             ),
           ],
         ),
       ),
     );
   }
-
- }
+}
